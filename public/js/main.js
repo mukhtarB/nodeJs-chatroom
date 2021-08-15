@@ -5,6 +5,8 @@ const socket = io();
 
 // Receiving message from server
 socket.on('message', message => {
+    console.log(message)
+
     // displaying received msg via func
     outputMessage(message);
 
