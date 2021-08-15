@@ -30,6 +30,15 @@ io.on('connection', socket => {
         io.emit('message', 'A user has left the chat.');
     });
 
+    // Listen for chatMessage
+    socket.on('chatMessage', msg => {
+        // console.log(msg)
+
+        // emit message back to client - to everyone
+        io.emit('message', msg);
+    });
+
+
 });
 
 
