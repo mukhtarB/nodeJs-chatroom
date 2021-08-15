@@ -17,7 +17,19 @@ app.use(express.static(path.join('public')));
 
 // Run when a client connects to web socket
 io.on('connection', socket => {
-    console.log('New Web Socket (socket.io connection)');
+    // console.log('New Web Socket (socket.io connection)');
+
+    // emitting events with socket.io
+    socket.emit('message', 'Welcome to the chatroom!');
+
+    //emitting a broadcast to everyone except connecting user
+    socket.broadcast.emit('message', 'A user has joined the chat.');
+
+    //broadcast to every total client
+    socket.on('disconnect', () => {
+        io.emit('message', 'A user has left the chat.');
+    });
+
 });
 
 
