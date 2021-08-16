@@ -6,6 +6,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 const formatMessage = require('./utils/messages');
+const {userJoin, getCurrentUser, userLeave, getRoomUsers} = require('./utils/users');
 
 // initializing variables
 const app = express();
@@ -21,25 +22,38 @@ app.use(express.static(path.join('public')));
 io.on('connection', socket => {
     // console.log('New Web Socket (socket.io connection)');
 
-    // emitting events with socket.io
-    socket.emit('message', formatMessage(bot, 'Welcome to the chatroom!'));
+    socket.on('joinRoom', ({ username, room }) => {
+        // Joining a room
+        const user = userJoin(socket.id, username, room);
+        socket.join(user.room);
 
-    //emitting a broadcast to everyone except connecting user
-    socket.broadcast.emit('message', formatMessage(bot, 'A user has joined the chat.'));
+        // emitting events with socket.io
+        socket.emit('message', formatMessage(bot, 'Welcome to the chatroom!'));
 
-    //broadcast to every total client
-    socket.on('disconnect', () => {
-        io.emit('message', formatMessage(bot, 'A user has left the chat.'));
+        // emitting a broadcast to everyone except connecting user
+        socket.broadcast.to(user.room).emit('message', formatMessage(bot, `${user.username} has joined the chat.`));
     });
+
 
     // Listen for chatMessage
     socket.on('chatMessage', msg => {
-        // console.log(msg)
+        //get user
+        const user = getCurrentUser(socket.id);
 
         // emit message back to client - to everyone
-        io.emit('message', formatMessage('USER',   msg));
+        // io.emit('message', formatMessage('User', msg));
+        io.to(user.room).emit('message', formatMessage(user.username, msg));
     });
 
+
+    // broadcast to every total client
+    socket.on('disconnect', () => {
+        user = userLeave(socket.id)
+
+        if(user) {
+            io.to(user.room).emit('message', formatMessage(bot, `${user.username} has left the chat.`));
+        };
+    });
 
 });
 
