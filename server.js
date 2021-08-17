@@ -32,6 +32,12 @@ io.on('connection', socket => {
 
         // emitting a broadcast to everyone except connecting user
         socket.broadcast.to(user.room).emit('message', formatMessage(bot, `${user.username} has joined the chat.`));
+
+        // send user and room info
+        io.to(user.room).emit('roomUsers', {
+            room: user.room,
+            users: getRoomUsers(user.room)
+        });
     });
 
 
@@ -41,7 +47,6 @@ io.on('connection', socket => {
         const user = getCurrentUser(socket.id);
 
         // emit message back to client - to everyone
-        // io.emit('message', formatMessage('User', msg));
         io.to(user.room).emit('message', formatMessage(user.username, msg));
     });
 
@@ -52,6 +57,11 @@ io.on('connection', socket => {
 
         if(user) {
             io.to(user.room).emit('message', formatMessage(bot, `${user.username} has left the chat.`));
+
+            io.to(user.room).emit('roomUsers', {
+                room: user.room,
+                users: getRoomUsers(user.room)
+            });
         };
     });
 

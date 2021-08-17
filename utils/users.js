@@ -9,12 +9,10 @@ function userJoin(id, username, room) {
     return user;
 };
 
-
 // Get currrent User
 function getCurrentUser(id) {
     return users.find(user => user.id === id);
 };
-
 
 // User leaves chat
 function userLeave(id) {
@@ -25,11 +23,11 @@ function userLeave(id) {
     }
 };
 
-
 // Get room users
 function getRoomUsers(room) {
     return users.filter(user => user.room === room);
-}
+};
+
 
 module.exports = {
     userJoin,
